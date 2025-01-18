@@ -29,14 +29,17 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: latest # Or a specific version
-
+        
       - name: 'Az CLI login'
-        uses: azure/login@v1
-        with:
-          managed-identity: true
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}   
+        run: az login --identitys
+      
+      # - name: 'Az CLI login'
+      #   uses: azure/login@v1
+      #   with:
+      #     managed-identity: true
+      #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}   
 
       - name: Terraform Init
         id: init
