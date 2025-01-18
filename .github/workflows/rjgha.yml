@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+      id-token: write # write is required for requesting the JWT
+      contents: read 
 jobs:
   terraform:
     name: Terraform
