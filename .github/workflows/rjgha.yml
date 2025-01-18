@@ -31,7 +31,7 @@ jobs:
           terraform_version: latest # Or a specific version
         
       - name: 'Az CLI login'
-        run: az login --identitys
+        run: az login --identity
       
       # - name: 'Az CLI login'
       #   uses: azure/login@v1
