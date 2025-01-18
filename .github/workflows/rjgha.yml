@@ -13,7 +13,7 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
-    environment: production # Or a suitable environment name
+    #environment: production # Or a suitable environment name
 
     steps:
       - name: Checkout code
