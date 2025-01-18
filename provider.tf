@@ -10,6 +10,7 @@ terraform {
 provider "azurerm" {
   features {}
   version = "~> 3.0"
+  use_msi = true
 }
 
 
