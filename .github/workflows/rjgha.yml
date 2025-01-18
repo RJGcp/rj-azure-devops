@@ -6,11 +6,14 @@ on:
       - main
   pull_request:
 
+permissions:
+      id-token: write # write is required for requesting the JWT
+      contents: read 
 jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
-    environment: production # Or a suitable environment name
+    #environment: production # Or a suitable environment name
 
     steps:
       - name: Checkout code
@@ -21,54 +24,48 @@ jobs:
         with:
           terraform_version: latest # Or a specific version
 
-      - name: Azure login
-        uses: azure/login@v2
+      - name: 'Az CLI login'
+        uses: azure/login@v1
         with:
-          auth-type: IDENTITY
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}   
 
       - name: Terraform Init
         id: init
         run: terraform init -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" -backend-config="key=terraform.tfstate"
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
 
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
         continue-on-error: true # Allow the workflow to continue even if formatting issues are found
 
       - name: Terraform Validate
         id: validate
         run: terraform validate
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -out tfplan
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
-        working-directory: ./terraform # Replace with your terraform directory
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        working-directory: . # Replace with your terraform directory
 
       - name: Terraform Plan Status Check
         if: steps.plan.outcome == 'failure'
         run: exit 1
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
 
       - name: Terraform Format Status Check
         if: steps.fmt.outcome == 'failure'
         run: |
           echo "::error::Terraform code formatting issues found. Please run 'terraform fmt' locally and commit the changes."
           exit 1
-        working-directory: ./terraform # Replace with your terraform directory
+        working-directory: . # Replace with your terraform directory
