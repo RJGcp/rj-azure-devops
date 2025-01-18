@@ -9,7 +9,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  version = "~> 3.0"
+  version = "latest"
   use_msi = true
 }
 
